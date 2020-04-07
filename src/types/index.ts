@@ -19,4 +19,5 @@ export interface AcquireRequestConfig {
   method?: Method
   data?: any
   params?: any
+  headers?: any
 }

@@ -1,4 +1,4 @@
-import { isDate, isObject } from './utils'
+import { isDate, isPlainObject } from './utils'
 
 /**
  * 函数式遍历对象 key value
@@ -94,7 +94,7 @@ const encodePair = (params: any): string[] => {
     values.forEach(val => {
       if (isDate(val)) {
         val = val.toISOString()
-      } else if (isObject(val)) {
+      } else if (isPlainObject(val)) {
         val = JSON.stringify(val)
       }
       parts.push(`${paramEncode(key)}=${paramEncode(val)}`)
