@@ -21,6 +21,7 @@ export interface AcquireRequestConfig {
   params?: any
   headers?: any
   responseType?: XMLHttpRequestResponseType
+  timeout?: number
 }
 
 /**
@@ -39,3 +40,11 @@ export interface AcquireResponse {
 }
 
 export interface AcquireResponsePromise extends Promise<AcquireResponse> {}
+
+export interface AcquireError extends Error {
+  isAcquireError: boolean
+  config: AcquireRequestConfig
+  code?: string | null
+  request?: any
+  response?: AcquireResponse
+}

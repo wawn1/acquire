@@ -1,8 +1,9 @@
 import { AcquireRequestConfig, AcquireResponse, AcquireResponsePromise } from './types'
+import { createError } from './utils/error'
 
 export default function xhr(config: AcquireRequestConfig): AcquireResponsePromise {
-  return new Promise(resolve => {
-    const { url, method = 'get', data = null, headers, responseType } = config
+  return new Promise((resolve, reject) => {
+    const { url, method = 'get', data = null, headers, responseType, timeout } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url, true)
     if (responseType) {
@@ -15,6 +16,7 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
         request.setRequestHeader(name, headers[name])
       }
     })
+    const statusStrategy = {}
     request.onreadystatechange = () => {
       if (request.readyState === 4) {
         const responseHeaders = request.getAllResponseHeaders()
@@ -27,7 +29,30 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
           config,
           request
         }
+        handleResponse(response)
+      }
+    }
+    // 网络不通错误
+    request.onerror = e => reject(createError('Network Error', config, null, request))
+    // 超时错误
+    if (timeout) request.timeout = timeout
+    request.ontimeout = () =>
+      reject(createError(`Timeout of ${timeout} ms exceeded`, config, 'ECONNABORTED', request))
+    // 需要处理status的错误  status为0表示网络错误或超时错误或跨域错误等
+    function handleResponse(response: AcquireResponse) {
+      if (response.status === 0) return
+      if (response.status >= 200 && response.status < 400) {
         resolve(response)
+      } else {
+        reject(
+          createError(
+            `Request failed with status code ${response.status}, ${response.statusText}`,
+            config,
+            null,
+            request,
+            response
+          )
+        )
       }
     }
     request.send(data)
