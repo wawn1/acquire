@@ -20,7 +20,7 @@ function normalizeHeaderName(headers: any, normalizdName: string): void {
  * @param {*} data
  * @returns {*}
  */
-export function processHeaders(headers: any = {}, data: any): any {
+export function processRequestHeaders(headers: any = {}, data: any): any {
   normalizeHeaderName(headers, 'Content-Type')
   if (isPlainObject(data)) {
     if (!headers['Content-Type']) {
@@ -28,4 +28,25 @@ export function processHeaders(headers: any = {}, data: any): any {
     }
   }
   return headers
+}
+
+/**
+ * request.getAllResponseHeaders 返回的字符串转化为对象
+ * 字符串一行是一个key:value  \r\n是换行符
+ *
+ * @export
+ * @param {string} headers
+ * @returns {*}
+ */
+export function parseResponseHeaders(headers: string): any {
+  let res = Object.create(null)
+  if (!headers) return res
+  headers.split('\r\n').forEach(line => {
+    let [key, val] = line.split(':')
+    key = key.trim().toLowerCase()
+    if (key && val) {
+      res[key] = val.trim()
+    }
+  })
+  return res
 }

@@ -1,17 +1,21 @@
-import { AcquireRequestConfig } from './types'
+import { AcquireRequestConfig, AcquireResponsePromise, AcquireResponse } from './types'
 import xhr from './xhr'
 import { buildURL } from './utils/url'
-import { transformRequest } from './utils/data'
-import { processHeaders } from './utils/headers'
+import { transformRequest, transformResponse } from './utils/data'
+import { processRequestHeaders, parseResponseHeaders } from './utils/headers'
 
-function acquire(config: AcquireRequestConfig): void {
+function acquire(config: AcquireRequestConfig): AcquireResponsePromise {
   processConfig(config)
-  xhr(config)
+  return xhr(config).then(res => {
+    res.headers = parseResponseHeaders(res.headers)
+    res.data = transformResponse(res.data)
+    return res
+  })
 }
 
 function processConfig(config: AcquireRequestConfig): void {
   config.url = transformURL(config)
-  config.headers = transformHeaders(config)
+  config.headers = transformRequestHeaders(config)
   config.data = transformRequestData(config)
 }
 
@@ -24,9 +28,9 @@ function transformRequestData(config: AcquireRequestConfig): any {
   return transformRequest(config.data)
 }
 
-function transformHeaders(config: AcquireRequestConfig): any {
+function transformRequestHeaders(config: AcquireRequestConfig): any {
   const { headers, data } = config
-  return processHeaders(headers, data)
+  return processRequestHeaders(headers, data)
 }
 
 export default acquire
