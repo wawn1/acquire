@@ -1,5 +1,5 @@
-import { AcquireRequestConfig, AcquireResponse, AcquireResponsePromise } from './types'
-import { createError } from './utils/error'
+import { AcquireRequestConfig, AcquireResponse, AcquireResponsePromise } from '../types'
+import { createError } from '../utils/error'
 
 export default function xhr(config: AcquireRequestConfig): AcquireResponsePromise {
   return new Promise((resolve, reject) => {

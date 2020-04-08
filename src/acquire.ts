@@ -1,36 +1,39 @@
-import { AcquireRequestConfig, AcquireResponsePromise, AcquireResponse } from './types'
-import xhr from './xhr'
-import { buildURL } from './utils/url'
-import { transformRequest, transformResponse } from './utils/data'
-import { processRequestHeaders, parseResponseHeaders } from './utils/headers'
+import { Acquire, AcquireResponsePromise } from './types'
+import easyRequest from './core/easy-request'
+import request from './core/request'
+import { extend } from './utils/utils'
 
-function acquire(config: AcquireRequestConfig): AcquireResponsePromise {
-  processConfig(config)
-  return xhr(config).then(res => {
-    res.headers = parseResponseHeaders(res.headers)
-    res.data = transformResponse(res.data)
-    return res
-  })
+/**
+ * 重载acquire的输入，可以支持(url, config) 和 (config)
+ *
+ * @param {*} url 第一个参数
+ * @param {*} [config] 第二个参数
+ * @returns {AcquireResponsePromise}
+ */
+function overloadRequest(url: any, config?: any): AcquireResponsePromise {
+  if (typeof url === 'string') {
+    if (!config) config = {}
+    config.url = url
+  } else {
+    config = url
+  }
+  return request(config)
 }
 
-function processConfig(config: AcquireRequestConfig): void {
-  config.url = transformURL(config)
-  config.headers = transformRequestHeaders(config)
-  config.data = transformRequestData(config)
+/**
+ * acquire是一个函数，可以传入config对象发送请求
+ * acquire也是一个对象，对象身上有 get post delete put等快捷方法
+ *
+ * @returns {AcquireConstructor}
+ */
+function createInstance(): Acquire {
+  const easyRequestFuncs = new easyRequest()
+  const acquire = overloadRequest
+
+  extend(acquire, easyRequestFuncs)
+  return acquire as Acquire
 }
 
-function transformURL(config: AcquireRequestConfig): string {
-  const { url, params } = config
-  return buildURL(url, params)
-}
-
-function transformRequestData(config: AcquireRequestConfig): any {
-  return transformRequest(config.data)
-}
-
-function transformRequestHeaders(config: AcquireRequestConfig): any {
-  const { headers, data } = config
-  return processRequestHeaders(headers, data)
-}
+const acquire = createInstance()
 
 export default acquire

@@ -13,15 +13,16 @@ export type Method =
   | 'OPTIONS'
   | 'patch'
   | 'PATCH'
-
-export interface AcquireRequestConfig {
-  url: string
+interface AcquireRequestConfigNoURL {
   method?: Method
   data?: any
   params?: any
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+}
+export interface AcquireRequestConfig extends AcquireRequestConfigNoURL {
+  url: string
 }
 
 /**
@@ -30,8 +31,8 @@ export interface AcquireRequestConfig {
  * @export
  * @interface AcquireResponse
  */
-export interface AcquireResponse {
-  data: any
+export interface AcquireResponse<T = any> {
+  data: T
   status: number
   statusText: string
   headers: any
@@ -39,7 +40,7 @@ export interface AcquireResponse {
   request: any
 }
 
-export interface AcquireResponsePromise extends Promise<AcquireResponse> {}
+export interface AcquireResponsePromise<T = any> extends Promise<AcquireResponse<T>> {}
 
 export interface AcquireError extends Error {
   isAcquireError: boolean
@@ -47,4 +48,20 @@ export interface AcquireError extends Error {
   code?: string | null
   request?: any
   response?: AcquireResponse
+}
+
+export interface AcquireFns {
+  request<T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
+  get<T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  delete<T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  head<T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  options<T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  post<T = any>(url: string, data?: any, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  put<T = any>(url: string, data?: any, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+  patch<T = any>(url: string, data?: any, config?: AcquireRequestConfig): AcquireResponsePromise<T>
+}
+
+export interface Acquire extends AcquireFns {
+  <T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
+  <T = any>(url: string, config?: AcquireRequestConfigNoURL): AcquireResponsePromise<T>
 }
