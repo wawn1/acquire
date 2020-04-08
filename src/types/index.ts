@@ -61,7 +61,32 @@ export interface AcquireFns {
   patch<T = any>(url: string, data?: any, config?: AcquireRequestConfig): AcquireResponsePromise<T>
 }
 
+export interface AcquireInterceptors {
+  request: AcquireInterceptorManager<AcquireRequestConfig>
+  response: AcquireInterceptorManager<AcquireResponse>
+}
 export interface Acquire extends AcquireFns {
   <T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
   <T = any>(url: string, config?: AcquireRequestConfigNoURL): AcquireResponsePromise<T>
+  interceptors: AcquireInterceptors
+}
+
+export interface ResolvedFn<T> {
+  (val: T): T | Promise<T>
+}
+
+export interface RejectedFn {
+  (error: any): any
+}
+
+export interface Interceptor<T> {
+  resolved: ResolvedFn<T>
+  rejected?: RejectedFn
+}
+export interface AcquireInterceptorManager<T> {
+  use(resolved: ResolvedFn<T>, rejected?: RejectedFn): string
+
+  eject(name: string): void
+
+  forEach(callback: (interceptor: Interceptor<T>) => void): void
 }
