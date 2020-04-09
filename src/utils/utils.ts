@@ -43,3 +43,33 @@ export const randomStr = (function random() {
     return res
   }
 })()
+
+/**
+ * 传入多个对象，合并生成一个新对象
+ * 传入一个对象，复制生成一个内容相同的新对象
+ * 合并多个对象时，如果冲突，后面传入的对象内容留下了
+ *
+ * @export
+ * @param {...any[]} objs
+ * @returns {*}
+ */
+export function deepMerge(...objs: any[]): any {
+  const result = Object.create(null)
+  objs.forEach(obj => {
+    if (obj) {
+      Object.keys(obj).forEach(key => {
+        const val = obj[key]
+        if (isPlainObject(val)) {
+          if (isPlainObject(result[key])) {
+            result[key] = deepMerge(result[key], val)
+          } else {
+            result[key] = deepMerge(val)
+          }
+        } else {
+          result[key] = val
+        }
+      })
+    }
+  })
+  return result
+}

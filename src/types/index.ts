@@ -13,13 +13,17 @@ export type Method =
   | 'OPTIONS'
   | 'patch'
   | 'PATCH'
-interface AcquireRequestConfigNoURL {
+export interface AcquireRequestConfigNoURL {
   method?: Method
   data?: any
   params?: any
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  transformRequest?: AcquireTransformer | AcquireTransformer[]
+  transformResponse?: AcquireTransformer | AcquireTransformer[]
+
+  [propName: string]: any
 }
 export interface AcquireRequestConfig extends AcquireRequestConfigNoURL {
   url: string
@@ -69,6 +73,8 @@ export interface Acquire extends AcquireFns {
   <T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
   <T = any>(url: string, config?: AcquireRequestConfigNoURL): AcquireResponsePromise<T>
   interceptors: AcquireInterceptors
+  defaults: AcquireRequestConfigNoURL
+  create: (config: AcquireRequestConfigNoURL) => Acquire
 }
 
 export interface ResolvedFn<T> {
@@ -89,4 +95,8 @@ export interface AcquireInterceptorManager<T> {
   eject(name: string): void
 
   forEach(callback: (interceptor: Interceptor<T>) => void): void
+}
+
+export interface AcquireTransformer {
+  (data: any, headers?: any): any
 }

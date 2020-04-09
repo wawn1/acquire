@@ -1,4 +1,5 @@
-import { isPlainObject } from './utils'
+import { isPlainObject, deepMerge } from './utils'
+import { Method } from '../types'
 
 function normalizeHeaderName(headers: any, normalizdName: string): void {
   if (!headers) {
@@ -49,4 +50,23 @@ export function parseResponseHeaders(headers: string): any {
     }
   })
   return res
+}
+
+/**
+ * 将对象形式的headers转化为一层对象
+ * 去掉除了当前使用method的其他请求方法的header
+ * headers 包含common, 请求method, 自定义比如msg:1
+ * 要将common和method里的内容放到外层
+ *
+ * @export
+ * @param {*} headers
+ * @param {Method} method
+ * @returns {*}
+ */
+export function flattenHeaders(headers: any, method: Method): any {
+  if (!headers) return headers
+  headers = deepMerge(headers.common, headers[method], headers)
+  const methodsToDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'patch', 'common']
+  methodsToDelete.forEach(method => delete headers[method])
+  return headers
 }

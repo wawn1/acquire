@@ -2,6 +2,7 @@ import {
   Acquire,
   AcquireResponsePromise,
   AcquireRequestConfig,
+  AcquireRequestConfigNoURL,
   AcquireResponse,
   ResolvedFn,
   RejectedFn,
@@ -11,6 +12,8 @@ import easyRequest from './core/easy-request'
 import request from './core/request'
 import { extend } from './utils/utils'
 import { InterceptorManager } from './core/interceptor-manager'
+import defaults from './defaults'
+import mergeConfig from './core/mergeConfig'
 
 interface PromiseChain<T> {
   resolved: ResolvedFn<T>
@@ -19,7 +22,7 @@ interface PromiseChain<T> {
 // 1. 将interceptors 放到acquire 函数对象上
 // 2. acquire函数执行时，用到interceptors做执行前后拦截
 // 如何无侵入修改？
-const wrap = function(acquire: (url: any, config?: any) => any) {
+const wrapInterceptors = function(acquire: (url: any, config?: any) => any) {
   const interceptors = {
     request: new InterceptorManager<AcquireRequestConfig>(),
     response: new InterceptorManager<AcquireResponse>()
@@ -57,7 +60,7 @@ const wrap = function(acquire: (url: any, config?: any) => any) {
  * @param {*} [config] 第二个参数
  * @returns {AcquireResponsePromise}
  */
-function overloadRequest(url: any, config?: any): any {
+function overloadInput(url: any, config?: any): any {
   if (typeof url === 'string') {
     if (!config) config = {}
     config.url = url
@@ -65,6 +68,18 @@ function overloadRequest(url: any, config?: any): any {
     config = url
   }
   return config
+}
+function wrapDefaultConfig(
+  acquire: (url: any, config?: any) => any,
+  defaults: AcquireRequestConfigNoURL
+) {
+  function AcquireWithDefaults(url: any, config?: any): any {
+    config = acquire(url, config)
+    return mergeConfig(defaults, config)
+  }
+  AcquireWithDefaults.defaults = defaults
+  extend(AcquireWithDefaults, acquire)
+  return AcquireWithDefaults
 }
 /**
  * acquire是一个函数，可以传入config对象发送请求
@@ -74,16 +89,24 @@ function overloadRequest(url: any, config?: any): any {
  *
  * @returns {AcquireConstructor}
  */
-function createInstance(): Acquire {
+function createInstance(defaults: AcquireRequestConfigNoURL): Acquire {
+  // 定义输入函数,重载的
+  let acquire = overloadInput
+  // 添加合并默认配置处理流程同时添加defaults对象属性
+  acquire = wrapDefaultConfig(acquire, defaults)
+  // 添加拦截器处理流程同时添加interceptors对象属性
+  acquire = wrapInterceptors(acquire)
+  // 添加get post 快捷方法
   const easyRequestFuncs: AcquireFns = new easyRequest()
-  let acquire = overloadRequest
-  acquire = wrap(acquire)
-
   acquire = extend(acquire, easyRequestFuncs)
 
   return acquire as Acquire
 }
 
-const acquire = createInstance()
+const acquire = createInstance(defaults)
+
+acquire.create = config => {
+  return createInstance(mergeConfig(defaults, config))
+}
 
 export default acquire
