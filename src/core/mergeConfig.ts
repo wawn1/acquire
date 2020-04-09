@@ -1,4 +1,4 @@
-import { AcquireRequestConfigNoURL } from '../types'
+import { AcquireRequestConfig } from '../types'
 import { deepMerge } from '../utils/utils'
 
 const strats = Object.create(null)
@@ -23,9 +23,9 @@ stratKeysDeepMerge.forEach(key => {
 })
 
 export default function mergeConfig(
-  defaultConfig: AcquireRequestConfigNoURL,
-  config?: AcquireRequestConfigNoURL
-): AcquireRequestConfigNoURL {
+  defaultConfig: AcquireRequestConfig,
+  config?: AcquireRequestConfig
+): AcquireRequestConfig {
   if (!config) config = {}
   const mergedConfig = Object.create(null)
   for (let key in config) {

@@ -3,9 +3,9 @@ import { createError } from '../utils/error'
 
 export default function xhr(config: AcquireRequestConfig): AcquireResponsePromise {
   return new Promise((resolve, reject) => {
-    const { url, method = 'get', data = null, headers, responseType, timeout } = config
+    const { url, method = 'get', data = null, headers, responseType, timeout, cancelToken } = config
     const request = new XMLHttpRequest()
-    request.open(method.toUpperCase(), url, true)
+    request.open(method.toUpperCase(), url!, true)
     if (responseType) {
       request.responseType = responseType
     }
@@ -54,6 +54,13 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
           )
         )
       }
+    }
+    // 可以取, readyState置为0
+    if (cancelToken) {
+      cancelToken.promise.then(reason => {
+        request.abort()
+        reject(reason)
+      })
     }
     request.send(data)
   })

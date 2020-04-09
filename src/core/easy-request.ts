@@ -1,9 +1,12 @@
-import { Method, AcquireResponsePromise, AcquireRequestConfig } from '../types'
-import dispatchRequest from './request'
+import { Method, AcquireResponsePromise, AcquireRequestConfig, Request } from '../types'
 
 export default class easyRequest {
+  dispatchRequest: Request
+  constructor(dispatchRequest: Request) {
+    this.dispatchRequest = dispatchRequest
+  }
   request(config: AcquireRequestConfig): AcquireResponsePromise {
-    return dispatchRequest(config)
+    return this.dispatchRequest(config)
   }
   get(url: string, config?: AcquireRequestConfig): AcquireResponsePromise {
     return this._requestMethodWithoutData('get', url, config)

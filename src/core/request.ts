@@ -6,6 +6,7 @@ import { processRequestHeaders, parseResponseHeaders, flattenHeaders } from '../
 import transform from './transform'
 
 function request(config: AcquireRequestConfig): AcquireResponsePromise {
+  throwIfCancelled(config)
   processConfig(config)
   return xhr(config).then(res => {
     res.headers = parseResponseHeaders(res.headers)
@@ -22,7 +23,13 @@ function processConfig(config: AcquireRequestConfig): void {
 
 function transformURL(config: AcquireRequestConfig): string {
   const { url, params } = config
-  return buildURL(url, params)
+  return buildURL(url!, params)
+}
+
+function throwIfCancelled(config: AcquireRequestConfig) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested()
+  }
 }
 
 export function defaultTransformRequest(data: any, headers?: any): any {

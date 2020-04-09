@@ -13,7 +13,8 @@ export type Method =
   | 'OPTIONS'
   | 'patch'
   | 'PATCH'
-export interface AcquireRequestConfigNoURL {
+export interface AcquireRequestConfig {
+  url?: string
   method?: Method
   data?: any
   params?: any
@@ -22,11 +23,9 @@ export interface AcquireRequestConfigNoURL {
   timeout?: number
   transformRequest?: AcquireTransformer | AcquireTransformer[]
   transformResponse?: AcquireTransformer | AcquireTransformer[]
+  cancelToken?: CancelToken
 
   [propName: string]: any
-}
-export interface AcquireRequestConfig extends AcquireRequestConfigNoURL {
-  url: string
 }
 
 /**
@@ -69,12 +68,20 @@ export interface AcquireInterceptors {
   request: AcquireInterceptorManager<AcquireRequestConfig>
   response: AcquireInterceptorManager<AcquireResponse>
 }
+
+export interface Request {
+  <T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
+}
+
 export interface Acquire extends AcquireFns {
   <T = any>(config: AcquireRequestConfig): AcquireResponsePromise<T>
-  <T = any>(url: string, config?: AcquireRequestConfigNoURL): AcquireResponsePromise<T>
+  <T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
   interceptors: AcquireInterceptors
-  defaults: AcquireRequestConfigNoURL
-  create: (config: AcquireRequestConfigNoURL) => Acquire
+  defaults: AcquireRequestConfig
+  create: (config: AcquireRequestConfig) => Acquire
+  CancelToken: CancelTokenStatic
+  Cancel: CancelStatic
+  isCancel: (value: any) => boolean
 }
 
 export interface ResolvedFn<T> {
@@ -99,4 +106,38 @@ export interface AcquireInterceptorManager<T> {
 
 export interface AcquireTransformer {
   (data: any, headers?: any): any
+}
+
+export interface CancelToken {
+  promise: Promise<Cancel>
+  reason?: Cancel
+
+  throwIfRequested(): void
+}
+
+export interface Canceler {
+  (message?: string): void
+}
+
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+export interface CancelTokenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelToken
+
+  source(): CancelTokenSource
+}
+
+export interface Cancel {
+  message?: string
+}
+
+export interface CancelStatic {
+  new (message?: string): Cancel
 }

@@ -1,7 +1,7 @@
-import { AcquireRequestConfigNoURL } from './types'
+import { AcquireRequestConfig } from './types'
 import { defaultTransformRequest, defaultTransformResponse } from './core/request'
 
-const defaults: AcquireRequestConfigNoURL = {
+const defaults: AcquireRequestConfig = {
   method: 'get',
   timeout: 0,
   headers: {
