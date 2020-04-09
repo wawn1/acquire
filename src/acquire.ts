@@ -19,13 +19,13 @@ interface PromiseChain<T> {
 // 1. 将interceptors 放到acquire 函数对象上
 // 2. acquire函数执行时，用到interceptors做执行前后拦截
 // 如何无侵入修改？
-const wrap = function(fn: (url: any, config?: any) => AcquireRequestConfig) {
+const wrap = function(acquire: (url: any, config?: any) => any) {
   const interceptors = {
     request: new InterceptorManager<AcquireRequestConfig>(),
     response: new InterceptorManager<AcquireResponse>()
   }
   function InterceptedAcquire(url: any, config?: any): AcquireResponsePromise {
-    config = fn(url, config)
+    config = acquire(url, config)
     const chain: PromiseChain<any>[] = [
       {
         resolved: request,
@@ -46,6 +46,7 @@ const wrap = function(fn: (url: any, config?: any) => AcquireRequestConfig) {
     return promise
   }
   InterceptedAcquire.interceptors = interceptors
+  extend(InterceptedAcquire, acquire)
   return InterceptedAcquire
 }
 
@@ -56,7 +57,7 @@ const wrap = function(fn: (url: any, config?: any) => AcquireRequestConfig) {
  * @param {*} [config] 第二个参数
  * @returns {AcquireResponsePromise}
  */
-function overloadRequest(url: any, config?: any): AcquireRequestConfig {
+function overloadRequest(url: any, config?: any): any {
   if (typeof url === 'string') {
     if (!config) config = {}
     config.url = url
@@ -76,9 +77,10 @@ function overloadRequest(url: any, config?: any): AcquireRequestConfig {
 function createInstance(): Acquire {
   const easyRequestFuncs: AcquireFns = new easyRequest()
   let acquire = overloadRequest
+  acquire = wrap(acquire)
 
   acquire = extend(acquire, easyRequestFuncs)
-  acquire = wrap(acquire)
+
   return acquire as Acquire
 }
 
