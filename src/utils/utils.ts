@@ -104,3 +104,7 @@ function parseURL(url: string) {
     host
   }
 }
+
+export function isFormData(val: any): val is FormData {
+  return val !== 'undefined' && val instanceof FormData
+}

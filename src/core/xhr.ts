@@ -1,6 +1,6 @@
 import { AcquireRequestConfig, AcquireResponse, AcquireResponsePromise } from '../types'
 import { createError } from '../utils/error'
-import { isSameOrigin } from '../utils/utils'
+import { isSameOrigin, isFormData } from '../utils/utils'
 import cookie from '../utils/cookie'
 
 export default function xhr(config: AcquireRequestConfig): AcquireResponsePromise {
@@ -36,6 +36,9 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
     function base() {
       if (responseType) {
         request.responseType = responseType
+      }
+      if (isFormData(data)) {
+        delete headers['Content-Type']
       }
       Object.keys(headers).forEach(name => {
         if (data === null && name.toLowerCase() === 'content-type') {
