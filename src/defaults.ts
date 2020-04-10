@@ -12,7 +12,10 @@ const defaults: AcquireRequestConfig = {
   transformRequest: [defaultTransformRequest],
   transformResponse: [defaultTransformResponse],
   csrfCookieName: 'CSRF-TOKEN',
-  csrfHeaderName: 'CSRF-TOKEN-HEADER'
+  csrfHeaderName: 'CSRF-TOKEN-HEADER',
+  validateStatus(status: number): boolean {
+    return status >= 200 && status < 300
+  }
 }
 
 const methodsNoData = ['delete', 'get', 'head', 'options']

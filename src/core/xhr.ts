@@ -18,7 +18,8 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
       csrfHeaderName,
       onDownloadProgress,
       onUploadProgress,
-      auth
+      auth,
+      validateStatus
     } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url!, true)
@@ -101,7 +102,7 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
       // 需要处理status的错误  status为0表示网络错误或超时错误或跨域错误等
       function handleResponse(response: AcquireResponse) {
         if (response.status === 0) return
-        if (response.status >= 200 && response.status < 400) {
+        if (!validateStatus || validateStatus(response.status)) {
           resolve(response)
         } else {
           reject(

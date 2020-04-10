@@ -30,6 +30,7 @@ export interface AcquireRequestConfig {
   onDownloadProgress?: (e: ProgressEvent) => void
   onUploadProgress?: (e: ProgressEvent) => void
   auth?: AcquireBasicCredentials
+  validateStatus?: (status: number) => boolean
 
   [propName: string]: any
 }
