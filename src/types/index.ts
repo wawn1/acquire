@@ -24,6 +24,9 @@ export interface AcquireRequestConfig {
   transformRequest?: AcquireTransformer | AcquireTransformer[]
   transformResponse?: AcquireTransformer | AcquireTransformer[]
   cancelToken?: CancelToken
+  withCredentials?: boolean
+  csrfCookieName?: string
+  csrfHeaderName?: string
 
   [propName: string]: any
 }

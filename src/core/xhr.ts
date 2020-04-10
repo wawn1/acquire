@@ -1,9 +1,22 @@
 import { AcquireRequestConfig, AcquireResponse, AcquireResponsePromise } from '../types'
 import { createError } from '../utils/error'
+import { isSameOrigin } from '../utils/utils'
+import cookie from '../utils/cookie'
 
 export default function xhr(config: AcquireRequestConfig): AcquireResponsePromise {
   return new Promise((resolve, reject) => {
-    const { url, method = 'get', data = null, headers, responseType, timeout, cancelToken } = config
+    const {
+      url,
+      method = 'get',
+      data = null,
+      headers,
+      responseType,
+      timeout,
+      cancelToken,
+      withCredentials,
+      csrfCookieName,
+      csrfHeaderName
+    } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url!, true)
     if (responseType) {
@@ -16,7 +29,6 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
         request.setRequestHeader(name, headers[name])
       }
     })
-    const statusStrategy = {}
     request.onreadystatechange = () => {
       if (request.readyState === 4) {
         const responseHeaders = request.getAllResponseHeaders()
@@ -61,6 +73,19 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
         request.abort()
         reject(reason)
       })
+    }
+    // withCredentials cors跨域时携带当前文件所在域名,请求域的cookie
+    if (withCredentials) {
+      request.withCredentials = withCredentials
+    }
+    //如果是同域名或者withCredentials为true 将token从cookie读出放到header中
+    if (withCredentials || isSameOrigin(url!)) {
+      if (csrfCookieName) {
+        const token = cookie.read(csrfCookieName)
+        if (csrfHeaderName && token) {
+          request.setRequestHeader(csrfHeaderName, token)
+        }
+      }
     }
     request.send(data)
   })

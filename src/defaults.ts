@@ -10,7 +10,9 @@ const defaults: AcquireRequestConfig = {
     }
   },
   transformRequest: [defaultTransformRequest],
-  transformResponse: [defaultTransformResponse]
+  transformResponse: [defaultTransformResponse],
+  csrfCookieName: 'CSRF-TOKEN',
+  csrfHeaderName: 'CSRF-TOKEN-HEADER'
 }
 
 const methodsNoData = ['delete', 'get', 'head', 'options']

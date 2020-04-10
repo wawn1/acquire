@@ -73,3 +73,34 @@ export function deepMerge(...objs: any[]): any {
   })
   return result
 }
+
+/**
+ * 判断请求的域和自己的域时候相同
+ *
+ * @export
+ * @param {string} requestURL
+ * @returns {boolean}
+ */
+export function isSameOrigin(requestURL: string): boolean {
+  const currentOrigin = parseURL(window.location.href)
+  const requestOrigin = parseURL(requestURL)
+  return (
+    currentOrigin.protocol === requestOrigin.protocol && currentOrigin.host === requestOrigin.host
+  )
+}
+
+/**
+ * 使用a标签对象来解析 协议和域名
+ *
+ * @param {string} url
+ * @returns
+ */
+const urlParsingNode = document.createElement('a')
+function parseURL(url: string) {
+  urlParsingNode.setAttribute('href', url)
+  const { protocol, host } = urlParsingNode
+  return {
+    protocol,
+    host
+  }
+}
