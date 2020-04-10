@@ -4,6 +4,7 @@ import { buildURL } from '../utils/url'
 import { transformRequest, transformResponse } from '../utils/data'
 import { processRequestHeaders, parseResponseHeaders, flattenHeaders } from '../utils/headers'
 import transform from './transform'
+import { isAbsoluteURL, combineURL } from '../utils/utils'
 
 function request(config: AcquireRequestConfig): AcquireResponsePromise {
   throwIfCancelled(config)
@@ -22,8 +23,9 @@ function processConfig(config: AcquireRequestConfig): void {
 }
 
 function transformURL(config: AcquireRequestConfig): string {
-  const { url, params } = config
-  return buildURL(url!, params)
+  let { url, params, paramsSerializer, baseURL } = config
+  if (baseURL && !isAbsoluteURL(url!)) url = combineURL(baseURL, url)
+  return buildURL(url!, params, paramsSerializer)
 }
 
 function throwIfCancelled(config: AcquireRequestConfig) {

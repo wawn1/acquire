@@ -1,4 +1,4 @@
-import { isDate, isPlainObject } from './utils'
+import { isDate, isPlainObject, isURLSearchParams } from './utils'
 
 /**
  * 函数式遍历对象 key value
@@ -52,9 +52,7 @@ const paramEncode = (val: string) => encode(val, { ' ': '+' }, '@', ':', '$', ',
  * @param {string[]} parts  参数序列化好的等式字符串数组  ['foo=1']
  * @returns url 连接好的url
  */
-const joinParams = (url: string, parts: string[]): string => {
-  let paramsStr = parts.join('&')
-
+const joinParams = (url: string, paramsStr: string): string => {
   if (paramsStr) {
     const markIndex = url.indexOf('#')
     if (markIndex !== -1) {
@@ -103,11 +101,21 @@ const encodePair = (params: any): string[] => {
   return parts
 }
 
-export function buildURL(url: string, params?: any): string {
+export function defaultParamsSerializer(params: any): string {
+  if (isURLSearchParams(params)) return params.toString()
+  const parts = encodePair(params)
+  return parts.join('&')
+}
+
+export function buildURL(
+  url: string,
+  params?: any,
+  paramsSerializer?: (params: any) => string
+): string {
   if (!params) {
     return url
   }
-  const parts = encodePair(params)
-  url = joinParams(url, parts)
-  return url
+  if (!paramsSerializer) paramsSerializer = defaultParamsSerializer
+  const serializedParams = paramsSerializer(params)
+  return joinParams(url, serializedParams)
 }

@@ -31,6 +31,8 @@ export interface AcquireRequestConfig {
   onUploadProgress?: (e: ProgressEvent) => void
   auth?: AcquireBasicCredentials
   validateStatus?: (status: number) => boolean
+  paramsSerializer?: (params: any) => string
+  baseURL?: string
 
   [propName: string]: any
 }
