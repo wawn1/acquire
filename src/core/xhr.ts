@@ -17,7 +17,8 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
       csrfCookieName,
       csrfHeaderName,
       onDownloadProgress,
-      onUploadProgress
+      onUploadProgress,
+      auth
     } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url!, true)
@@ -27,6 +28,7 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
     cancel()
     cors()
     progress()
+    authorize()
 
     request.send(data)
     // 基本的请求头设置和响应类型设置
@@ -112,6 +114,15 @@ export default function xhr(config: AcquireRequestConfig): AcquireResponsePromis
             )
           )
         }
+      }
+    }
+    // 如果有auth配置, 添加Authorization头
+    function authorize() {
+      if (auth) {
+        request.setRequestHeader(
+          'Authorization',
+          `Basic ${btoa(auth.username + ':' + auth.password)}`
+        )
       }
     }
   })

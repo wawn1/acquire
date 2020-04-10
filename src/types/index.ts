@@ -29,6 +29,7 @@ export interface AcquireRequestConfig {
   csrfHeaderName?: string
   onDownloadProgress?: (e: ProgressEvent) => void
   onUploadProgress?: (e: ProgressEvent) => void
+  auth?: AcquireBasicCredentials
 
   [propName: string]: any
 }
@@ -145,4 +146,9 @@ export interface Cancel {
 
 export interface CancelStatic {
   new (message?: string): Cancel
+}
+
+export interface AcquireBasicCredentials {
+  username: string
+  password: string
 }
