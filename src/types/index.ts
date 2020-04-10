@@ -27,6 +27,8 @@ export interface AcquireRequestConfig {
   withCredentials?: boolean
   csrfCookieName?: string
   csrfHeaderName?: string
+  onDownloadProgress?: (e: ProgressEvent) => void
+  onUploadProgress?: (e: ProgressEvent) => void
 
   [propName: string]: any
 }
@@ -81,7 +83,7 @@ export interface Acquire extends AcquireFns {
   <T = any>(url: string, config?: AcquireRequestConfig): AcquireResponsePromise<T>
   interceptors: AcquireInterceptors
   defaults: AcquireRequestConfig
-  create: (config: AcquireRequestConfig) => Acquire
+  create: (config?: AcquireRequestConfig) => Acquire
   CancelToken: CancelTokenStatic
   Cancel: CancelStatic
   isCancel: (value: any) => boolean
